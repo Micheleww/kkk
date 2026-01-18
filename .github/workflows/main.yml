@@ -1,0 +1,21 @@
+name: mvm-verdict
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  mvm-verdict:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect user-supplied selftest.log
+        run: |
+          set -e
+          # Fail if any selftest.log is committed in PR diff
+          if git diff --name-only origin/${{ github.base_ref }}...${{ github.sha }} | grep -E '(^|/)selftest\.log$'; then
+            echo "FOUND selftest.log in PR diff"
+            exit 1
+          fi
+          echo "OK: no selftest.log in PR diff"
